@@ -99,6 +99,7 @@ export default function AdminDashboard() {
   const [simpleTable, setSimpleTable] = useState<string | null>(null);
   const [simpleMode, setSimpleMode] = useState<"new" | "edit">("new");
   const [simpleDraft, setSimpleDraft] = useState<{ code: string; libelle: string; ordre: number }>({ code: "", libelle: "", ordre: 1 });
+  const [quizCoefDraft, setQuizCoefDraft] = useState<number>(1);
 
   // Specialized edit dialogs (UV, École)
   const [uvEditOpen, setUvEditOpen] = useState(false);
@@ -127,6 +128,7 @@ export default function AdminDashboard() {
     setSimpleTable(key);
     setSimpleMode("new");
     setSimpleDraft({ code: "", libelle: "", ordre: 1 });
+    if (key === "typesQuiz") setQuizCoefDraft(1);
     setSimpleOpen(true);
   };
   const openEditSimple = (key: string, item: any) => {
@@ -149,6 +151,7 @@ export default function AdminDashboard() {
     setSimpleTable(key);
     setSimpleMode("edit");
     setSimpleDraft({ code: item.code, libelle: item.libelle, ordre: Number(item.ordre) || 0 });
+    if (key === "typesQuiz") setQuizCoefDraft(Number(item.coefficient) || 0);
     setSimpleOpen(true);
   };
   const confirmSimple = () => {
@@ -157,9 +160,25 @@ export default function AdminDashboard() {
     if (!simpleDraft.code.trim() || !simpleDraft.libelle.trim()) return;
     if (simpleMode === "new") {
       if (items.some((x:any) => x.code.toLowerCase() === simpleDraft.code.trim().toLowerCase())) return;
-      setItems((prev:any[]) => [...prev, { code: simpleDraft.code.trim(), libelle: simpleDraft.libelle.trim(), ordre: Number(simpleDraft.ordre) || 0 }].sort((a:any,b:any)=>a.ordre-b.ordre));
+      const baseItem:any = { code: simpleDraft.code.trim(), libelle: simpleDraft.libelle.trim(), ordre: Number(simpleDraft.ordre) || 0 };
+      if (simpleTable === "typesQuiz") {
+        baseItem.description = (simpleDraft as any).description || "";
+        baseItem.coefficientParDefaut = Number(quizCoefDraft) || 0;
+        baseItem.dureeMaximaleParDefaut = Number((simpleDraft as any).dureeMaximaleParDefaut) || 0;
+      }
+      setItems((prev:any[]) => [...prev, baseItem].sort((a:any,b:any)=>a.ordre-b.ordre));
     } else {
-      setItems((prev:any[]) => prev.map((x:any) => x.code === simpleDraft.code ? { ...x, libelle: simpleDraft.libelle.trim(), ordre: Number(simpleDraft.ordre) || 0 } : (x.code.toLowerCase() === simpleDraft.code.toLowerCase() ? { ...x, libelle: simpleDraft.libelle.trim(), ordre: Number(simpleDraft.ordre) || 0 } : x)).sort((a:any,b:any)=>a.ordre-b.ordre));
+      setItems((prev:any[]) => prev.map((x:any) => {
+        const shouldUpdate = x.code === simpleDraft.code || x.code.toLowerCase() === simpleDraft.code.toLowerCase();
+        if (!shouldUpdate) return x;
+        const updated:any = { ...x, libelle: simpleDraft.libelle.trim(), ordre: Number(simpleDraft.ordre) || 0 };
+        if (simpleTable === "typesQuiz") {
+          updated.description = (simpleDraft as any).description || "";
+          updated.coefficientParDefaut = Number(quizCoefDraft) || 0;
+          updated.dureeMaximaleParDefaut = Number((simpleDraft as any).dureeMaximaleParDefaut) || 0;
+        }
+        return updated;
+      }).sort((a:any,b:any)=>a.ordre-b.ordre));
     }
     setSimpleOpen(false);
   };
@@ -340,7 +359,7 @@ export default function AdminDashboard() {
             variant="success"
           />
           <StatsCard
-            title="Écoles Partenaires"
+            title="Apprenants Actifs"
             value="87"
             change="+3 nouvelles"
             icon={School}
@@ -677,6 +696,8 @@ export default function AdminDashboard() {
                           <TableRow>
                             <TableHead>Code</TableHead>
                             <TableHead>Libellé</TableHead>
+                            <TableHead>Coeff. défaut</TableHead>
+                            <TableHead>Durée défaut</TableHead>
                             <TableHead>Ordre</TableHead>
                             <TableHead>Actions</TableHead>
                           </TableRow>
@@ -686,6 +707,8 @@ export default function AdminDashboard() {
                             <TableRow key={tq.code}>
                               <TableCell>{tq.code}</TableCell>
                               <TableCell>{tq.libelle}</TableCell>
+                              <TableCell>{(tq as any).coefficientParDefaut ?? '-'}</TableCell>
+                              <TableCell>{(tq as any).dureeMaximaleParDefaut ?? '-'}</TableCell>
                               <TableCell>{tq.ordre}</TableCell>
                               <TableCell className="space-x-2">
                                 <Button size="sm" variant="link" onClick={()=>openEditSimple("typesQuiz", tq)}>Modifier</Button>
@@ -853,7 +876,7 @@ export default function AdminDashboard() {
                   <DialogHeader>
                     <DialogTitle>{simpleMode === "new" ? "Nouveau" : "Modifier"} {simpleTable ? getSimpleState(simpleTable).title : ""}</DialogTitle>
                   </DialogHeader>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                     <div className="space-y-1">
                       <label className="text-sm font-medium">Code</label>
                       <Input value={simpleDraft.code} onChange={(e)=>setSimpleDraft(prev=>({ ...prev, code: e.target.value }))} disabled={simpleMode==='edit'} />
@@ -862,6 +885,24 @@ export default function AdminDashboard() {
                       <label className="text-sm font-medium">Libellé</label>
                       <Input value={simpleDraft.libelle} onChange={(e)=>setSimpleDraft(prev=>({ ...prev, libelle: e.target.value }))} />
                     </div>
+                    {simpleTable === 'typesQuiz' && (
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium">Description</label>
+                        <Input placeholder="Description" value={(simpleDraft as any).description||""} onChange={(e)=>setSimpleDraft(prev=>({ ...(prev as any), description: e.target.value }) as any)} />
+                      </div>
+                    )}
+                    {simpleTable === 'typesQuiz' && (
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium">Coeff. par défaut</label>
+                        <Input type="number" value={quizCoefDraft} onChange={(e)=>setQuizCoefDraft(Number(e.target.value)||0)} />
+                      </div>
+                    )}
+                    {simpleTable === 'typesQuiz' && (
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium">Durée max par défaut (min)</label>
+                        <Input type="number" value={(simpleDraft as any).dureeMaximaleParDefaut||0} onChange={(e)=>setSimpleDraft(prev=>({ ...(prev as any), dureeMaximaleParDefaut: Number(e.target.value)||0 }) as any)} />
+                      </div>
+                    )}
                     <div className="space-y-1">
                       <label className="text-sm font-medium">Ordre</label>
                       <Input type="number" value={simpleDraft.ordre} onChange={(e)=>setSimpleDraft(prev=>({ ...prev, ordre: Number(e.target.value)||0 }))} />

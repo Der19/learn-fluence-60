@@ -8,7 +8,11 @@ export type Fonction = ReferenceItem;
 export type StatutContenu = ReferenceItem;
 export type Profil = ReferenceItem;
 export type TypeRessourcePedagogique = ReferenceItem;
-export type TypeQuiz = ReferenceItem;
+export type TypeQuiz = ReferenceItem & {
+  description?: string;
+  coefficientParDefaut?: number;
+  dureeMaximaleParDefaut?: number; // minutes
+};
 export type ModePaiement = ReferenceItem;
 
 export interface Theme extends ReferenceItem {}
@@ -48,8 +52,8 @@ export const statutsContenu: StatutContenu[] = [
 export const profils: Profil[] = [
   { code: "ADMIN", libelle: "Administrateur", ordre: 1 },
   { code: "ENSEIGN", libelle: "Enseignant", ordre: 2 },
-  { code: "APPREN", libelle: "Apprenant", ordre: 3 },
-  { code: "CLIENT", libelle: "Client", ordre: 4 },
+  { code: "CLIENT", libelle: "Client", ordre: 3 },
+  { code: "APPREN", libelle: "Apprenant", ordre: 4 },
 ];
 
 export const themes: Theme[] = [
@@ -101,8 +105,8 @@ export const typesRessourcePedagogique: TypeRessourcePedagogique[] = [
 ];
 
 export const typesQuiz: TypeQuiz[] = [
-  { code: "DEV", libelle: "Devoir", ordre: 1 },
-  { code: "EXO", libelle: "Exercice", ordre: 2 },
+  { code: "DEV", libelle: "Devoir", ordre: 1, description: "Évaluation notée à corriger", coefficientParDefaut: 1, dureeMaximaleParDefaut: 60 },
+  { code: "EXO", libelle: "Exercice", ordre: 2, description: "Exercice d'entraînement", coefficientParDefaut: 1, dureeMaximaleParDefaut: 30 },
 ];
 
 export const modesPaiement: ModePaiement[] = [
@@ -350,14 +354,14 @@ export const liensContenuSections: LienContenuSection[] = [
 // -------------------------
 
 export type FormationType = "payante" | "gratuite";
-export type Priorite = 1 | 2 | 3; // 1 = haute, 2 = moyenne, 3 = basse
+export type Niveau = 1 | 2 | 3; // 1 = débutant, 2 = intermédiaire, 3 = avancé
 
 export interface Formation {
   id: string;
   titre: string;
   themeCode: string;
   sousThemeCode?: string;
-  priorite: Priorite;
+  niveau: Niveau;
   type: FormationType;
   resume: string;
 }
@@ -368,7 +372,7 @@ export const formations: Formation[] = [
     titre: "Démarrer avec React",
     themeCode: "DEV",
     sousThemeCode: "REACT",
-    priorite: 1,
+    niveau: 1,
     type: "gratuite",
     resume: "Introduction aux composants et hooks.",
   },
@@ -377,7 +381,7 @@ export const formations: Formation[] = [
     titre: "Node.js et Express",
     themeCode: "DEV",
     sousThemeCode: "NODE",
-    priorite: 2,
+    niveau: 2,
     type: "payante",
     resume: "API REST avec Express et middleware.",
   },
@@ -386,7 +390,7 @@ export const formations: Formation[] = [
     titre: "SQL pour débutants",
     themeCode: "DATA",
     sousThemeCode: "SQL",
-    priorite: 3,
+    niveau: 3,
     type: "gratuite",
     resume: "Requêtes SELECT, JOIN, agrégations.",
   },
@@ -395,7 +399,7 @@ export const formations: Formation[] = [
     titre: "UX Essentials",
     themeCode: "DESIGN",
     sousThemeCode: "UX",
-    priorite: 2,
+    niveau: 2,
     type: "payante",
     resume: "Recherche utilisateur et wireframes.",
   },
