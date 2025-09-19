@@ -307,6 +307,14 @@ All colors MUST be HSL.
     animation: pulse 1s ease-in-out infinite;
   }
 
+  /* Version mobile - plus gros pour être visible */
+  @media (max-width: 768px) {
+    .simple-point {
+      width: 12px !important;
+      height: 12px !important;
+    }
+  }
+
   @keyframes pulse {
     0%, 100% { 
       transform: translate(-50%, -50%) scale(1);

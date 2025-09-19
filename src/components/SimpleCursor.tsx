@@ -61,6 +61,40 @@ const SimpleCursor = () => {
     setIsVisible(true);
   }, []);
 
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    const touch = e.touches[0];
+    if (touch) {
+      const now = Date.now();
+      setMousePos({ x: touch.clientX, y: touch.clientY });
+      setIsVisible(true);
+      
+      // Créer des points au touch
+      if (now - lastMouseTime.current > 30) {
+        lastMouseTime.current = now;
+        const newPoint = createPoint(touch.clientX, touch.clientY);
+        setPoints(prev => [newPoint, ...prev].slice(-8));
+      }
+    }
+  }, [createPoint]);
+
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    const touch = e.touches[0];
+    if (touch) {
+      setMousePos({ x: touch.clientX, y: touch.clientY });
+      setIsVisible(true);
+      
+      // Explosion au touch
+      for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2;
+        const distance = 25;
+        const x = touch.clientX + Math.cos(angle) * distance;
+        const y = touch.clientY + Math.sin(angle) * distance;
+        const newPoint = createPoint(x, y);
+        setPoints(prev => [newPoint, ...prev].slice(-8));
+      }
+    }
+  }, [createPoint]);
+
   const handleClick = useCallback(() => {
     // Explosion plus visible au clic
     for (let i = 0; i < 6; i++) {
@@ -74,9 +108,9 @@ const SimpleCursor = () => {
   }, [createPoint, mousePos.x, mousePos.y]);
 
   useEffect(() => {
-    // Désactiver sur mobile
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    if (isMobile) return;
+    // Activer sur mobile aussi
+    // const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // if (isMobile) return;
 
     // Écouter les événements
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
@@ -84,6 +118,10 @@ const SimpleCursor = () => {
     document.addEventListener('mouseleave', () => setIsVisible(false), { passive: true });
     document.addEventListener('click', handleClick, { passive: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Événements tactiles pour mobile
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
 
     // Démarrer l'animation
     animate();
@@ -94,6 +132,8 @@ const SimpleCursor = () => {
       document.removeEventListener('mouseleave', () => setIsVisible(false));
       document.removeEventListener('click', handleClick);
       window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchstart', handleTouchStart);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
