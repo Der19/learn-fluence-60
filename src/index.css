@@ -76,6 +76,16 @@ All colors MUST be HSL.
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Couleurs personnalisées pour le bonhomme */
+    --brown-600: 120 25% 25%;
+    --brown-700: 120 25% 20%;
+    --leather-600: 25 30% 35%;
+    --leather-700: 25 30% 30%;
+    --leather-800: 25 30% 25%;
+    --leather-900: 25 30% 20%;
+    --navy-700: 220 100% 20%;
+    --navy-900: 220 100% 10%;
   }
 
   .dark {
@@ -149,5 +159,126 @@ All colors MUST be HSL.
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     backdrop-filter: blur(10px);
+  }
+
+  /* Bag animation keyframes */
+  @keyframes walk {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    25% { transform: translateY(-8px) rotate(-2deg); }
+    50% { transform: translateY(-5px) rotate(0deg); }
+    75% { transform: translateY(-8px) rotate(2deg); }
+  }
+
+  @keyframes walk-right {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(80%); }
+  }
+
+  @keyframes leg-left {
+    0%, 100% { transform: rotate(0deg) translateX(0px); }
+    25% { transform: rotate(25deg) translateX(2px); }
+    50% { transform: rotate(0deg) translateX(0px); }
+    75% { transform: rotate(-15deg) translateX(-1px); }
+  }
+
+  @keyframes leg-right {
+    0%, 100% { transform: rotate(0deg) translateX(0px); }
+    25% { transform: rotate(-15deg) translateX(-1px); }
+    50% { transform: rotate(0deg) translateX(0px); }
+    75% { transform: rotate(25deg) translateX(2px); }
+  }
+
+  @keyframes arm-swing {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(15deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(-15deg); }
+  }
+
+  @keyframes bag-throw {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(200px, -100px) rotate(180deg); }
+    100% { transform: translate(400px, 0) rotate(360deg); }
+  }
+
+  @keyframes bag-land {
+    0% { transform: scale(0.8) rotate(360deg); }
+    50% { transform: scale(1.1) rotate(180deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  @keyframes bag-open {
+    0% { transform: scaleY(1); }
+    50% { transform: scaleY(1.2); }
+    100% { transform: scaleY(1); }
+  }
+
+  @keyframes sparkle-1 {
+    0%, 100% { transform: translate(0, 0) scale(0); opacity: 0; }
+    50% { transform: translate(-20px, -30px) scale(1); opacity: 1; }
+  }
+
+  @keyframes sparkle-2 {
+    0%, 100% { transform: translate(0, 0) scale(0); opacity: 0; }
+    50% { transform: translate(20px, -20px) scale(1); opacity: 1; }
+  }
+
+  @keyframes sparkle-3 {
+    0%, 100% { transform: translate(0, 0) scale(0); opacity: 0; }
+    50% { transform: translate(-30px, 20px) scale(1); opacity: 1; }
+  }
+
+  @keyframes sparkle-4 {
+    0%, 100% { transform: translate(0, 0) scale(0); opacity: 0; }
+    50% { transform: translate(30px, 30px) scale(1); opacity: 1; }
+  }
+
+  /* Animation classes */
+  .animate-walk {
+    animation: walk 0.8s ease-in-out infinite;
+  }
+
+  .animate-walk-right {
+    animation: walk-right 3s ease-out forwards;
+  }
+
+  .animate-leg-left {
+    animation: leg-left 0.8s ease-in-out infinite;
+  }
+
+  .animate-leg-right {
+    animation: leg-right 0.8s ease-in-out infinite;
+  }
+
+  .animate-arm-swing {
+    animation: arm-swing 0.8s ease-in-out infinite;
+  }
+
+  .animate-bag-throw {
+    animation: bag-throw 1.5s ease-out forwards;
+  }
+
+  .animate-bag-land {
+    animation: bag-land 1s ease-out forwards;
+  }
+
+  .animate-bag-open {
+    animation: bag-open 0.5s ease-out 0.5s forwards;
+  }
+
+  .animate-sparkle-1 {
+    animation: sparkle-1 2s ease-out infinite;
+  }
+
+  .animate-sparkle-2 {
+    animation: sparkle-2 2s ease-out infinite 0.5s;
+  }
+
+  .animate-sparkle-3 {
+    animation: sparkle-3 2s ease-out infinite 1s;
+  }
+
+  .animate-sparkle-4 {
+    animation: sparkle-4 2s ease-out infinite 1.5s;
   }
 }
