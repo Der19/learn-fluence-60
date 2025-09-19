@@ -281,4 +281,38 @@ All colors MUST be HSL.
   .animate-sparkle-4 {
     animation: sparkle-4 2s ease-out infinite 1.5s;
   }
+
+  /* Cursor styles */
+  .particle,
+  .trail-point,
+  .brush-stroke,
+  .star,
+  .fast-dot,
+  .simple-point {
+    pointer-events: none !important;
+    user-select: none;
+    will-change: opacity;
+    transform: translate3d(-50%, -50%, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    position: fixed !important;
+    z-index: 9999 !important;
+  }
+
+  /* Simple cursor - bien visible */
+  .simple-point {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { 
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% { 
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+  }
 }
