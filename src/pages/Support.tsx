@@ -31,7 +31,7 @@ export default function Support() {
               <AccordionItem value="faq3">
                 <AccordionTrigger>Comment créer un apprenant ?</AccordionTrigger>
                 <AccordionContent>
-                  Côté client, ouvrez "Gestion des apprenants", renseignez le code, le nom, le mot de passe puis cliquez "Créer".
+                  Côté collectivité locale, ouvrez "Gestion des apprenants", renseignez le code, le nom, le mot de passe puis cliquez "Créer".
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

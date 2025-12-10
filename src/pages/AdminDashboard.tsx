@@ -20,7 +20,7 @@ export default function AdminDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatsCard
-            title="Clients Actifs"
+            title="Collectivités locales Actives"
             value="1,248"
             change="+12% ce mois"
             icon={Users}
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
               <div className="p-3 bg-info/10 border border-info/20 rounded-lg">
                 <div className="flex items-center mb-2">
                   <div className="w-2 h-2 bg-info rounded-full mr-2" />
-                  <span className="font-medium text-sm">Nouveau client</span>
+                  <span className="font-medium text-sm">Nouvelle collectivité locale</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   École Supérieure inscrite

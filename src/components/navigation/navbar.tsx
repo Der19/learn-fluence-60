@@ -77,7 +77,7 @@ export function Navbar() {
                 <User className="h-4 w-4 text-white" />
               </div>
               <span className="ml-1 px-2 py-0.5 text-xs rounded-full text-white bg-gradient-to-r from-sky-600 to-emerald-600">
-                {user.role === 'student' ? 'Apprenant' : user.role === 'formateur' ? 'Formateur' : user.role === 'client' ? 'Client' : 'Admin'}
+                {user.role === 'student' ? 'Apprenant' : user.role === 'formateur' ? 'Formateur' : user.role === 'client' ? 'Collectivité locale' : 'Admin'}
               </span>
               <Button size="sm" variant="ghost" onClick={() => { logout(); navigate("/login"); }}>Déconnexion</Button>
             </div>
