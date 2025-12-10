@@ -287,8 +287,7 @@ All colors MUST be HSL.
   .trail-point,
   .brush-stroke,
   .star,
-  .fast-dot,
-  .simple-point {
+  .fast-dot {
     pointer-events: none !important;
     user-select: none;
     will-change: opacity;
@@ -297,14 +296,6 @@ All colors MUST be HSL.
     -webkit-backface-visibility: hidden;
     position: fixed !important;
     z-index: 9999 !important;
-  }
-
-  /* Simple cursor - bien visible */
-  .simple-point {
-    width: 8px !important;
-    height: 8px !important;
-    border-radius: 50% !important;
-    animation: pulse 1s ease-in-out infinite;
   }
 
   /* Version mobile - plus gros pour être visible */
