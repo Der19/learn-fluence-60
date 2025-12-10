@@ -14,10 +14,10 @@ export default function TeacherDashboard() {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Module Configuration
+            Module Formateur
           </h1>
           <p className="text-muted-foreground">
-            Espace enseignant - Gestion des cours et évaluations
+            Espace formateur - Gestion des cours et évaluations
           </p>
         </div>
 

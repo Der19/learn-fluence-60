@@ -20,16 +20,15 @@ const Index = () => {
       features: [
         "Gestion des tables de référence",
         "Administration des utilisateurs",
-        "Configuration des contenus et licences",
         "Système de reporting avancé"
       ],
       onClick: () => navigate("/admin")
     },
     {
-      title: "Module Configuration", 
-      description: "Outil de création et gestion de contenus pédagogiques pour les enseignants avec système d'évaluation intégré.",
+      title: "Module Formateur", 
+      description: "Outil de création et gestion de contenus pédagogiques pour les formateurs avec système d'évaluation intégré.",
       icon: BookOpen,
-      userType: "Enseignant",
+      userType: "Formateur",
       gradient: "bg-gradient-accent",
       features: [
         "Création de cours structurés (UV/Cours/Modules)",
@@ -41,12 +40,12 @@ const Index = () => {
     },
     {
       title: "Module Exploitation",
-      description: "Interface client et apprenant pour l'achat de formations, la gestion des crédits et le suivi pédagogique.",
+      description: "Interface collectivité locale et apprenant pour l'achat de formations, la gestion des crédits et le suivi pédagogique.",
       icon: Users,
-      userType: "Client/Apprenant",
+      userType: "Collectivité locale/apprenant",
       gradient: "bg-success",
       features: [
-        "Système de paiement sécurisé",
+        "Système de paiement sécurisé (optionnel)",
         "Gestion des apprenants et crédits",
         "Suivi de progression personnalisé",
         "Évaluations et certifications"

@@ -9,6 +9,31 @@ import { formations, themes, sousThemes } from "@/lib/adminData";
 import { getCurrentUser } from "@/lib/auth";
 import { toast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BookOpen } from "lucide-react";
+
+// Structure de données pour les cours par formation
+const formationCours: Record<string, Array<{ code: string; titre: string; description: string; duree: string }>> = {
+  "F-001": [
+    { code: "C-001", titre: "Introduction à React", description: "Découvrez les bases de React et la création de composants", duree: "2h" },
+    { code: "C-002", titre: "Les Hooks React", description: "Maîtrisez useState, useEffect et les hooks personnalisés", duree: "3h" },
+    { code: "C-003", titre: "Routing avec React Router", description: "Apprenez à gérer la navigation dans votre application", duree: "2h30" },
+  ],
+  "F-002": [
+    { code: "C-004", titre: "Introduction à Node.js", description: "Découvrez Node.js et son écosystème", duree: "2h" },
+    { code: "C-005", titre: "Express.js - Les bases", description: "Créez votre première API REST avec Express", duree: "3h" },
+    { code: "C-006", titre: "Middleware et authentification", description: "Gérez les middlewares et l'authentification JWT", duree: "2h30" },
+  ],
+  "F-003": [
+    { code: "C-007", titre: "SQL - Les fondamentaux", description: "Apprenez les bases du langage SQL", duree: "2h" },
+    { code: "C-008", titre: "Requêtes avancées", description: "Maîtrisez les JOIN, GROUP BY et sous-requêtes", duree: "3h" },
+    { code: "C-009", titre: "Optimisation des performances", description: "Optimisez vos requêtes SQL pour de meilleures performances", duree: "2h30" },
+  ],
+  "F-004": [
+    { code: "C-010", titre: "Principes de l'UX", description: "Découvrez les fondamentaux de l'expérience utilisateur", duree: "2h" },
+    { code: "C-011", titre: "Recherche utilisateur", description: "Apprenez à mener des entretiens et des tests utilisateurs", duree: "3h" },
+    { code: "C-012", titre: "Prototypage et wireframes", description: "Créez des prototypes efficaces avec Figma", duree: "2h30" },
+  ],
+};
 
 export default function Formations() {
   const [search, setSearch] = useState("");
@@ -22,6 +47,8 @@ export default function Formations() {
   const [rows, setRows] = useState<any[]>(() => formations.map(f => ({ ...f })));
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<any>({ id: "", titre: "", themeCode: "", sousThemeCode: "", niveau: 1, type: "gratuite", resume: "" });
+  const [coursDialogOpen, setCoursDialogOpen] = useState(false);
+  const [selectedFormation, setSelectedFormation] = useState<any>(null);
 
   const sousThemesOptions = useMemo(() => sousThemes.filter(st => theme === "all" || st.themeCode === theme), [theme]);
 
@@ -37,10 +64,10 @@ export default function Formations() {
   }, [rows, search, theme, sousTheme, niveau, type]);
 
   const onAddClick = () => {
-    if (user?.role === "admin" || user?.role === "teacher") {
+    if (user?.role === "admin" || user?.role === "formateur") {
       setOpen(true);
     } else {
-      toast({ title: "Action réservée", description: "Cette action est réservée à l'admin et à l'enseignant." });
+      toast({ title: "Action réservée", description: "Cette action est réservée à l'admin et au formateur." });
     }
   };
 
@@ -49,8 +76,25 @@ export default function Formations() {
     const id = draft.id?.trim() || `F-${String(rows.length + 1).padStart(3, "0")}`;
     const next = { ...draft, id };
     setRows(prev => [...prev, next]);
+    // Créer au moins 3 cours par défaut pour la nouvelle formation
+    if (!formationCours[id]) {
+      formationCours[id] = [
+        { code: `C-${String(Object.keys(formationCours).length * 3 + 1).padStart(3, "0")}`, titre: "Cours 1", description: "Description du cours 1", duree: "2h" },
+        { code: `C-${String(Object.keys(formationCours).length * 3 + 2).padStart(3, "0")}`, titre: "Cours 2", description: "Description du cours 2", duree: "2h" },
+        { code: `C-${String(Object.keys(formationCours).length * 3 + 3).padStart(3, "0")}`, titre: "Cours 3", description: "Description du cours 3", duree: "2h" },
+      ];
+    }
     setOpen(false);
     setDraft({ id: "", titre: "", themeCode: "", sousThemeCode: "", niveau: 1, type: "gratuite", resume: "" });
+  };
+
+  const openCoursDialog = (formation: any) => {
+    setSelectedFormation(formation);
+    setCoursDialogOpen(true);
+  };
+
+  const getFormationCours = (formationId: string) => {
+    return formationCours[formationId] || [];
   };
 
   return (
@@ -108,7 +152,7 @@ export default function Formations() {
 
         <Card>
           <CardHeader className="border-0 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded">
-            <CardTitle>Liste des formations</CardTitle>
+            <CardTitle>Liste des cours</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -131,22 +175,31 @@ export default function Formations() {
                     <TableCell>{((f as any).niveau ?? (f as any).priorite) === 1 ? "Débutant" : ((f as any).niveau ?? (f as any).priorite) === 2 ? "Intermédiaire" : "Avancé"}</TableCell>
                     <TableCell className="capitalize">{f.type}</TableCell>
                     <TableCell>
-                      {f.type === 'payante' ? (
+                      <div className="flex gap-2 items-center">
                         <Button
-                          className="bg-gradient-primary"
-                          onClick={() => {
-                            if (user?.role !== 'student') {
-                              toast({ title: "Action réservée", description: "Cette action est réservée aux apprenants." });
-                              return;
-                            }
-                            toast({ title: "Achat", description: "Redirection vers le paiement (démo)." });
-                          }}
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openCoursDialog(f)}
                         >
-                          Acheter la formation
+                          <BookOpen className="h-4 w-4 mr-1" />
+                          Voir les cours
                         </Button>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">Gratuite</span>
-                      )}
+                        {f.type === 'payante' && (
+                          <Button
+                            size="sm"
+                            className="bg-gradient-primary"
+                            onClick={() => {
+                              if (user?.role !== 'student') {
+                                toast({ title: "Action réservée", description: "Cette action est réservée aux apprenants." });
+                                return;
+                              }
+                              toast({ title: "Achat", description: "Redirection vers le paiement (démo)." });
+                            }}
+                          >
+                            Acheter la formation
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -155,6 +208,43 @@ export default function Formations() {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Dialog pour afficher les cours d'une formation */}
+        <Dialog open={coursDialogOpen} onOpenChange={setCoursDialogOpen}>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                Cours de la formation : {selectedFormation?.titre}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              {selectedFormation && getFormationCours(selectedFormation.id).length > 0 ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {getFormationCours(selectedFormation.id).map((cours, index) => (
+                    <Card key={cours.code}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-sm font-medium text-muted-foreground">Cours {index + 1}</span>
+                              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">{cours.duree}</span>
+                            </div>
+                            <h4 className="font-semibold text-lg mb-1">{cours.titre}</h4>
+                            <p className="text-sm text-muted-foreground">{cours.description}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-8">
+                  Aucun cours disponible pour cette formation.
+                </p>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent>

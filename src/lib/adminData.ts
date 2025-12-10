@@ -36,7 +36,7 @@ export interface Ecole {
 
 export const fonctions: Fonction[] = [
   { code: "ADM", libelle: "Administrateur", ordre: 1 },
-  { code: "ENS", libelle: "Enseignant", ordre: 2 },
+  { code: "ENS", libelle: "Formateur", ordre: 2 },
   { code: "APP", libelle: "Apprenant", ordre: 3 },
   { code: "CLI", libelle: "Client", ordre: 4 },
 ];
@@ -51,7 +51,7 @@ export const statutsContenu: StatutContenu[] = [
 
 export const profils: Profil[] = [
   { code: "ADMIN", libelle: "Administrateur", ordre: 1 },
-  { code: "ENSEIGN", libelle: "Enseignant", ordre: 2 },
+  { code: "ENSEIGN", libelle: "Formateur", ordre: 2 },
   { code: "CLIENT", libelle: "Client", ordre: 3 },
   { code: "APPREN", libelle: "Apprenant", ordre: 4 },
 ];

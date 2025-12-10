@@ -32,10 +32,11 @@ export function Navbar() {
             {user?.role === "admin" && (
               <>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/admin")}>Tableau de bord</Button>
+                <Button variant="ghost" size="sm" onClick={() => navigate("/admin/users")}>Utilisateurs</Button>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/admin/parametrage")}>Paramétrage</Button>
               </>
             )}
-            {user?.role === "teacher" && (
+            {user?.role === "formateur" && (
               <>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/teacher")}>Tableau de bord</Button>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/teacher/courses")}>Cours</Button>
@@ -45,6 +46,7 @@ export function Navbar() {
             {user?.role === "student" && (
               <>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/student")}>Tableau de bord</Button>
+                <Button variant="ghost" size="sm" onClick={() => navigate("/student/courses")}>Mes Cours</Button>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/student/quizzes")}>Quiz</Button>
               </>
             )}
@@ -55,7 +57,7 @@ export function Navbar() {
                 <Button variant="ghost" size="sm" onClick={() => navigate("/client/learners")}>Gestion des apprenants</Button>
               </>
             )}
-            {!user || (user.role !== "teacher" && user.role !== "student" && user.role !== "client") ? (
+            {!user || (user.role !== "formateur" && user.role !== "student" && user.role !== "client") ? (
               <Button variant="ghost" size="sm" onClick={() => navigate("/support")}>Support</Button>
             ) : null}
           </div>
@@ -75,7 +77,7 @@ export function Navbar() {
                 <User className="h-4 w-4 text-white" />
               </div>
               <span className="ml-1 px-2 py-0.5 text-xs rounded-full text-white bg-gradient-to-r from-sky-600 to-emerald-600">
-                {user.role === 'student' ? 'Apprenant' : user.role === 'teacher' ? 'Enseignant' : user.role === 'client' ? 'Client' : 'Admin'}
+                {user.role === 'student' ? 'Apprenant' : user.role === 'formateur' ? 'Formateur' : user.role === 'client' ? 'Client' : 'Admin'}
               </span>
               <Button size="sm" variant="ghost" onClick={() => { logout(); navigate("/login"); }}>Déconnexion</Button>
             </div>
@@ -103,10 +105,11 @@ export function Navbar() {
               {user?.role === "admin" && (
                 <>
                   <Button variant="ghost" size="sm" className="justify-start" onClick={() => navigate("/admin")}>Tableau de bord</Button>
+                  <Button variant="ghost" size="sm" className="justify-start" onClick={() => navigate("/admin/users")}>Utilisateurs</Button>
                   <Button variant="ghost" size="sm" className="justify-start" onClick={() => navigate("/admin/parametrage")}>Paramétrage</Button>
                 </>
               )}
-              {user?.role === "teacher" && (
+              {user?.role === "formateur" && (
                 <>
                   <Button variant="ghost" size="sm" className="justify-start" onClick={() => navigate("/teacher")}>Tableau de bord</Button>
                   <Button variant="ghost" size="sm" className="justify-start" onClick={() => navigate("/teacher/courses")}>Cours</Button>
@@ -116,6 +119,7 @@ export function Navbar() {
               {user?.role === "student" && (
                 <>
                   <Button variant="ghost" size="sm" className="justify-start" onClick={() => navigate("/student")}>Tableau de bord</Button>
+                  <Button variant="ghost" size="sm" className="justify-start" onClick={() => navigate("/student/courses")}>Mes Cours</Button>
                   <Button variant="ghost" size="sm" className="justify-start" onClick={() => navigate("/student/quizzes")}>Quiz</Button>
                 </>
               )}
@@ -126,7 +130,7 @@ export function Navbar() {
                   <Button variant="ghost" size="sm" className="justify-start" onClick={() => navigate("/client/learners")}>Gestion des apprenants</Button>
                 </>
               )}
-              {!user || (user.role !== "teacher" && user.role !== "student" && user.role !== "client") ? (
+              {!user || (user.role !== "formateur" && user.role !== "student" && user.role !== "client") ? (
                 <Button variant="ghost" size="sm" className="justify-start" onClick={() => navigate("/support")}>Support</Button>
               ) : null}
               {user ? (

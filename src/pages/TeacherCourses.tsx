@@ -116,16 +116,25 @@ export default function TeacherCourses() {
             <DialogHeader>
               <DialogTitle>Nouveau cours</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <Select value={draft.uvCode} onValueChange={(v)=>setDraft(prev=>({ ...prev, uvCode: v }))}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner une UV" /></SelectTrigger>
-                <SelectContent>
-                  {uvs.map(u => (<SelectItem key={u.code} value={u.code}>{u.code} - {u.libelle}</SelectItem>))}
-                </SelectContent>
-              </Select>
-              <Input placeholder="Titre du cours" value={draft.titre} onChange={(e)=>setDraft(prev=>({ ...prev, titre: e.target.value }))} />
-              <Input type="number" placeholder="Nombre de modules" value={draft.nbModules} onChange={(e)=>setDraft(prev=>({ ...prev, nbModules: Number(e.target.value)||0 }))} />
-              <div className="md:col-span-3 flex justify-end gap-2">
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Sélectionner une UV</label>
+                <Select value={draft.uvCode} onValueChange={(v)=>setDraft(prev=>({ ...prev, uvCode: v }))}>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="Sélectionner une UV" /></SelectTrigger>
+                  <SelectContent>
+                    {uvs.map(u => (<SelectItem key={u.code} value={u.code}>{u.code} - {u.libelle}</SelectItem>))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Titre du cours</label>
+                <Input placeholder="Titre du cours" value={draft.titre} onChange={(e)=>setDraft(prev=>({ ...prev, titre: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Nombre de modules</label>
+                <Input type="number" placeholder="Nombre de modules" value={draft.nbModules} onChange={(e)=>setDraft(prev=>({ ...prev, nbModules: Number(e.target.value)||0 }))} />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
                 <Button variant="outline" onClick={()=>setOpen(false)}>Annuler</Button>
                 <Button className="bg-gradient-primary" onClick={saveCourse}>Enregistrer</Button>
               </div>
@@ -146,7 +155,7 @@ export default function TeacherCourses() {
               <div className="md:col-span-2"><strong>Lien teaser Cours:</strong> {viewData?.lienTeaserCours}</div>
               <div className="md:col-span-2"><strong>Lien playlist Cours:</strong> {viewData?.lienPlaylistCours}</div>
               <div><strong>UV:</strong> {viewData?.uvCode}</div>
-              <div><strong>Enseignant:</strong> {viewData?.enseignant}</div>
+              <div><strong>Formateur:</strong> {viewData?.enseignant}</div>
               <div><strong>Coefficient:</strong> {viewData?.coefficient}</div>
               <div><strong>Ordre:</strong> {viewData?.ordre}</div>
             </div>

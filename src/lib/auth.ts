@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "teacher" | "student" | "client";
+export type UserRole = "admin" | "formateur" | "student" | "client";
 
 export interface AuthUser {
   email: string;
@@ -23,9 +23,9 @@ const USERS: UserRecord[] = [
     redirectPath: "/admin",
   },
   {
-    email: "teacher@edu.local",
-    password: "teacher123",
-    role: "teacher",
+    email: "formateur@edu.local",
+    password: "formateur123",
+    role: "formateur",
     redirectPath: "/teacher",
   },
   {

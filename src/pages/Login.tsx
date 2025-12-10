@@ -236,7 +236,7 @@ export default function Login() {
               <div className="space-y-2">
                 {examples.map((u) => (
                   <div key={u.email} className="flex items-center justify-between text-sm p-2 bg-muted/50 rounded">
-                    <span className="font-medium">{u.role === "student" ? "Apprenant" : u.role}</span>
+                    <span className="font-medium">{u.role === "student" ? "Apprenant" : u.role === "formateur" ? "Formateur" : u.role === "client" ? "Client" : u.role === "admin" ? "Admin" : u.role}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-muted-foreground">{u.email} / {u.password}</span>
                       <Button size="sm" variant="outline" onClick={() => { setEmail(u.email); setPassword(u.password); }}>

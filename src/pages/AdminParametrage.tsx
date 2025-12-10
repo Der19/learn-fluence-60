@@ -126,7 +126,7 @@ export default function AdminParametrage() {
     if (!simpleTable) return;
     const upd = (arr:any[], next:any) => arr.map((x:any)=>x.code===next.code?next:x);
     if (!simpleDraft.code.trim() || !simpleDraft.libelle.trim()) return;
-    const base:any = { code: simpleDraft.code.trim(), libelle: simpleDraft.libelle.trim(), ordre: Number(simpleDraft.ordre)||0 };
+    let base:any = { code: simpleDraft.code.trim(), libelle: simpleDraft.libelle.trim(), ordre: Number(simpleDraft.ordre)||0 };
     if (simpleTable === 'typesQuiz') { base.description = (simpleDraft as any).description||''; base.coefficientParDefaut = Number(quizCoefDraft)||0; base.dureeMaximaleParDefaut = Number((simpleDraft as any).dureeMaximaleParDefaut)||0; }
     if (simpleTable === 'ecoles') {
       const etat = (simpleDraft as any).etat as 'actif'|'sommeil'|'inactif' | undefined;

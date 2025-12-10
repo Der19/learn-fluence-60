@@ -11,6 +11,7 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import NotFound from "./pages/NotFound";
 import AdminFormations from "./pages/AdminFormations";
+import AdminUsers from "./pages/AdminUsers";
 import Formations from "./pages/Formations";
 import Login from "./pages/Login";
 import TeacherQuizzes from "./pages/TeacherQuizzes";
@@ -23,6 +24,7 @@ import ClientCredits from "./pages/ClientCredits";
 import ClientLearners from "./pages/ClientLearners";
 import StudentQuizzesList from "./pages/StudentQuizzesList";
 import StudentQuizTake from "./pages/StudentQuizTake";
+import StudentCourses from "./pages/StudentCourses";
 import Support from "./pages/Support";
 import StudentQuizResult from "./pages/StudentQuizResult";
 
@@ -65,9 +67,17 @@ const App = () => (
             }
           />
           <Route
+            path="/admin/users"
+            element={
+              <RequireRole role="admin">
+                <AdminUsers />
+              </RequireRole>
+            }
+          />
+          <Route
             path="/teacher"
             element={
-              <RequireRole role="teacher">
+              <RequireRole role="formateur">
                 <TeacherDashboard />
               </RequireRole>
             }
@@ -75,7 +85,7 @@ const App = () => (
           <Route
             path="/teacher/quizzes"
             element={
-              <RequireRole role="teacher">
+              <RequireRole role="formateur">
                 <TeacherQuizzes />
               </RequireRole>
             }
@@ -83,7 +93,7 @@ const App = () => (
           <Route
             path="/teacher/courses"
             element={
-              <RequireRole role="teacher">
+              <RequireRole role="formateur">
                 <TeacherCourses />
               </RequireRole>
             }
@@ -91,7 +101,7 @@ const App = () => (
           <Route
             path="/teacher/courses/:id/modules"
             element={
-              <RequireRole role="teacher">
+              <RequireRole role="formateur">
                 <TeacherCourseModules />
               </RequireRole>
             }
@@ -99,7 +109,7 @@ const App = () => (
           <Route
             path="/teacher/quizzes/preview"
             element={
-              <RequireRole role="teacher">
+              <RequireRole role="formateur">
                 <TeacherQuizPreview />
               </RequireRole>
             }
@@ -133,6 +143,14 @@ const App = () => (
             element={
               <RequireRole role="client">
                 <ClientLearners />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/student/courses"
+            element={
+              <RequireRole role="student">
+                <StudentCourses />
               </RequireRole>
             }
           />
