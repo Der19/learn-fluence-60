@@ -4,10 +4,10 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableCaption } from "@/components/ui/table";
 import { useMemo, useState } from "react";
-import { formations as initialFormations, themes } from "@/lib/adminData";
-import { sousThemes } from "@/lib/adminData";
+import { formations as initialFormations, themes, sousThemes, cours } from "@/lib/adminData";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AdminFormations() {
   const [search, setSearch] = useState("");
@@ -19,6 +19,10 @@ export default function AdminFormations() {
   const [rows, setRows] = useState<any[]>(() => initialFormations.map(f => ({ ...f })));
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<any>({ id: "", titre: "", themeCode: "", sousThemeCode: "", niveau: 1, type: "gratuite", resume: "" });
+  const [selectedCours, setSelectedCours] = useState<string[]>([]);
+  
+  // Structure de données pour les cours par formation
+  const [formationCours, setFormationCours] = useState<Record<string, Array<{ code: string; titre: string; description: string; duree: string }>>>({});
 
   const sousThemesOptions = useMemo(() => sousThemes.filter(st => theme === "all" || st.themeCode === theme), [theme]);
 
@@ -38,8 +42,42 @@ export default function AdminFormations() {
     const id = draft.id?.trim() || `F-${String(rows.length + 1).padStart(3, "0")}`;
     const next = { ...draft, id };
     setRows(prev => [...prev, next]);
+    
+    // Créer les cours sélectionnés pour la nouvelle formation
+    if (selectedCours.length > 0) {
+      const coursSelectionnes = selectedCours.map((coursCode, index) => {
+        const coursData = cours.find(c => c.code === coursCode);
+        return {
+          code: coursData?.code || `C-${String(index + 1).padStart(3, "0")}`,
+          titre: coursData?.libelle || `Cours ${index + 1}`,
+          description: coursData?.description || `Description du cours ${index + 1}`,
+          duree: "2h"
+        };
+      });
+      setFormationCours(prev => ({ ...prev, [id]: coursSelectionnes }));
+    } else {
+      // Si aucun cours sélectionné, créer 3 cours par défaut
+      setFormationCours(prev => ({
+        ...prev,
+        [id]: [
+          { code: `C-${String(Object.keys(prev).length * 3 + 1).padStart(3, "0")}`, titre: "Cours 1", description: "Description du cours 1", duree: "2h" },
+          { code: `C-${String(Object.keys(prev).length * 3 + 2).padStart(3, "0")}`, titre: "Cours 2", description: "Description du cours 2", duree: "2h" },
+          { code: `C-${String(Object.keys(prev).length * 3 + 3).padStart(3, "0")}`, titre: "Cours 3", description: "Description du cours 3", duree: "2h" },
+        ]
+      }));
+    }
+    
     setOpen(false);
     setDraft({ id: "", titre: "", themeCode: "", sousThemeCode: "", niveau: 1, type: "gratuite", resume: "" });
+    setSelectedCours([]);
+  };
+
+  const toggleCours = (coursCode: string) => {
+    setSelectedCours(prev => 
+      prev.includes(coursCode) 
+        ? prev.filter(c => c !== coursCode)
+        : [...prev, coursCode]
+    );
   };
 
   return (
@@ -89,7 +127,7 @@ export default function AdminFormations() {
                 </SelectContent>
               </Select>
               <div className="flex justify-end">
-                <Button className="bg-gradient-primary" onClick={()=>setOpen(true)}>Ajouter</Button>
+                <Button className="bg-gradient-primary" onClick={()=>{setOpen(true); setSelectedCours([]);}}>Ajouter</Button>
               </div>
             </div>
           </CardContent>

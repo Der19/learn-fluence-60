@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableCaption } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
-import { formations, themes, sousThemes } from "@/lib/adminData";
+import { formations, themes, sousThemes, cours } from "@/lib/adminData";
 import { getCurrentUser } from "@/lib/auth";
 import { toast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Check } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Structure de données pour les cours par formation
 const formationCours: Record<string, Array<{ code: string; titre: string; description: string; duree: string }>> = {
@@ -47,6 +48,7 @@ export default function Formations() {
   const [rows, setRows] = useState<any[]>(() => formations.map(f => ({ ...f })));
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<any>({ id: "", titre: "", themeCode: "", sousThemeCode: "", niveau: 1, type: "gratuite", resume: "" });
+  const [selectedCours, setSelectedCours] = useState<string[]>([]);
   const [coursDialogOpen, setCoursDialogOpen] = useState(false);
   const [selectedFormation, setSelectedFormation] = useState<any>(null);
 
@@ -65,10 +67,19 @@ export default function Formations() {
 
   const onAddClick = () => {
     if (user?.role === "admin" || user?.role === "formateur") {
+      setSelectedCours([]);
       setOpen(true);
     } else {
       toast({ title: "Action réservée", description: "Cette action est réservée à l'admin et au formateur." });
     }
+  };
+
+  const toggleCours = (coursCode: string) => {
+    setSelectedCours(prev => 
+      prev.includes(coursCode) 
+        ? prev.filter(c => c !== coursCode)
+        : [...prev, coursCode]
+    );
   };
 
   const saveFormation = () => {
@@ -76,16 +87,31 @@ export default function Formations() {
     const id = draft.id?.trim() || `F-${String(rows.length + 1).padStart(3, "0")}`;
     const next = { ...draft, id };
     setRows(prev => [...prev, next]);
-    // Créer au moins 3 cours par défaut pour la nouvelle formation
-    if (!formationCours[id]) {
+    
+    // Créer les cours sélectionnés pour la nouvelle formation
+    if (selectedCours.length > 0) {
+      const coursSelectionnes = selectedCours.map((coursCode, index) => {
+        const coursData = cours.find(c => c.code === coursCode);
+        return {
+          code: coursData?.code || `C-${String(index + 1).padStart(3, "0")}`,
+          titre: coursData?.libelle || `Cours ${index + 1}`,
+          description: coursData?.description || `Description du cours ${index + 1}`,
+          duree: "2h"
+        };
+      });
+      formationCours[id] = coursSelectionnes;
+    } else {
+      // Si aucun cours sélectionné, créer 3 cours par défaut
       formationCours[id] = [
         { code: `C-${String(Object.keys(formationCours).length * 3 + 1).padStart(3, "0")}`, titre: "Cours 1", description: "Description du cours 1", duree: "2h" },
         { code: `C-${String(Object.keys(formationCours).length * 3 + 2).padStart(3, "0")}`, titre: "Cours 2", description: "Description du cours 2", duree: "2h" },
         { code: `C-${String(Object.keys(formationCours).length * 3 + 3).padStart(3, "0")}`, titre: "Cours 3", description: "Description du cours 3", duree: "2h" },
       ];
     }
+    
     setOpen(false);
     setDraft({ id: "", titre: "", themeCode: "", sousThemeCode: "", niveau: 1, type: "gratuite", resume: "" });
+    setSelectedCours([]);
   };
 
   const openCoursDialog = (formation: any) => {
@@ -282,8 +308,40 @@ export default function Formations() {
               </Select>
               <Input className="md:col-span-2" placeholder="Résumé" value={draft.resume} onChange={(e)=>setDraft((p:any)=>({ ...p, resume: e.target.value }))} />
             </div>
+            
+            <div className="mt-4 space-y-3">
+              <label className="text-sm font-medium">Sélectionner les cours de cette formation</label>
+              <div className="max-h-60 overflow-y-auto border rounded-lg p-3 space-y-2">
+                {cours.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Aucun cours disponible</p>
+                ) : (
+                  cours.map((c) => (
+                    <div key={c.code} className="flex items-center space-x-2 p-2 hover:bg-muted/50 rounded">
+                      <Checkbox
+                        id={`cours-${c.code}`}
+                        checked={selectedCours.includes(c.code)}
+                        onCheckedChange={() => toggleCours(c.code)}
+                      />
+                      <label
+                        htmlFor={`cours-${c.code}`}
+                        className="flex-1 text-sm cursor-pointer"
+                      >
+                        <div className="font-medium">{c.libelle}</div>
+                        <div className="text-xs text-muted-foreground">{c.code} - {c.description}</div>
+                      </label>
+                    </div>
+                  ))
+                )}
+              </div>
+              {selectedCours.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {selectedCours.length} cours sélectionné{selectedCours.length > 1 ? "s" : ""}
+                </p>
+              )}
+            </div>
+            
             <div className="flex justify-end gap-2 mt-3">
-              <Button variant="outline" onClick={()=>setOpen(false)}>Annuler</Button>
+              <Button variant="outline" onClick={()=>{setOpen(false); setSelectedCours([]);}}>Annuler</Button>
               <Button className="bg-gradient-primary" onClick={saveFormation}>Enregistrer</Button>
             </div>
           </DialogContent>

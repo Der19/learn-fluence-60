@@ -63,12 +63,13 @@ export default function ClientLearners() {
   const confirmEdit = () => {
     if (!selected) return;
     const newCode = editDraft.code.trim();
-    if (!newCode || !editDraft.name.trim() || !editDraft.password.trim()) return;
+    if (!newCode || !editDraft.name.trim()) return;
     if (newCode.toLowerCase() !== selected.code.toLowerCase() && learners.some(x => x.code.toLowerCase() === newCode.toLowerCase())) {
       toast({ title: "Code déjà utilisé" });
       return;
     }
-    setLearners(prev => prev.map(l => l.code === selected.code ? { ...l, code: newCode, name: editDraft.name, password: editDraft.password } : l));
+    // Conserver le mot de passe existant lors de la modification
+    setLearners(prev => prev.map(l => l.code === selected.code ? { ...l, code: newCode, name: editDraft.name } : l));
     setIsEditOpen(false);
     toast({ title: "Apprenant modifié" });
   };
