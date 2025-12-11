@@ -100,15 +100,16 @@ export function Navbar() {
 
           {/* Right section */}
           <div className="flex items-center space-x-3">
-            <Popover open={notificationsOpen} onOpenChange={setNotificationsOpen}>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell className="h-4 w-4" />
-                  <Badge className="absolute -top-1 -right-1 h-4 w-4 text-xs p-0 bg-warning">
-                    {upcomingLiveCourses.length}
-                  </Badge>
-                </Button>
-              </PopoverTrigger>
+            {user?.role === "student" && (
+              <Popover open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="sm" className="relative">
+                    <Bell className="h-4 w-4" />
+                    <Badge className="absolute -top-1 -right-1 h-4 w-4 text-xs p-0 bg-warning">
+                      {upcomingLiveCourses.length}
+                    </Badge>
+                  </Button>
+                </PopoverTrigger>
               <PopoverContent className="w-80 p-0" align="end">
                 <Card className="border-0 shadow-lg">
                   <CardHeader className="pb-3">
@@ -168,6 +169,7 @@ export function Navbar() {
                 </Card>
               </PopoverContent>
             </Popover>
+            )}
             
             {user ? (
             <div className="hidden md:flex items-center space-x-2 bg-white/50 rounded-full px-3 py-1">
