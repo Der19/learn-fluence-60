@@ -200,8 +200,40 @@ export default function AdminFormations() {
               </Select>
               <Input className="md:col-span-2" placeholder="Résumé" value={draft.resume} onChange={(e)=>setDraft((p:any)=>({ ...p, resume: e.target.value }))} />
             </div>
+            
+            <div className="mt-4 space-y-3">
+              <label className="text-sm font-medium">Sélectionner les cours de cette formation</label>
+              <div className="max-h-60 overflow-y-auto border rounded-lg p-3 space-y-2">
+                {cours.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Aucun cours disponible</p>
+                ) : (
+                  cours.map((c) => (
+                    <div key={c.code} className="flex items-center space-x-2 p-2 hover:bg-muted/50 rounded">
+                      <Checkbox
+                        id={`cours-${c.code}`}
+                        checked={selectedCours.includes(c.code)}
+                        onCheckedChange={() => toggleCours(c.code)}
+                      />
+                      <label
+                        htmlFor={`cours-${c.code}`}
+                        className="flex-1 text-sm cursor-pointer"
+                      >
+                        <div className="font-medium">{c.libelle}</div>
+                        <div className="text-xs text-muted-foreground">{c.code} - {c.description}</div>
+                      </label>
+                    </div>
+                  ))
+                )}
+              </div>
+              {selectedCours.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {selectedCours.length} cours sélectionné{selectedCours.length > 1 ? "s" : ""}
+                </p>
+              )}
+            </div>
+            
             <div className="flex justify-end gap-2 mt-3">
-              <Button variant="outline" onClick={()=>setOpen(false)}>Annuler</Button>
+              <Button variant="outline" onClick={()=>{setOpen(false); setSelectedCours([]);}}>Annuler</Button>
               <Button className="bg-gradient-primary" onClick={saveFormation}>Enregistrer</Button>
             </div>
           </DialogContent>

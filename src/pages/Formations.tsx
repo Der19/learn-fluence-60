@@ -9,7 +9,7 @@ import { formations, themes, sousThemes, cours } from "@/lib/adminData";
 import { getCurrentUser } from "@/lib/auth";
 import { toast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { BookOpen, Check } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 // Structure de données pour les cours par formation
