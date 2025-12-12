@@ -1,8 +1,8 @@
 
 // Service de notifications par email
-// Utilise EmailJS pour envoyer des emails depuis le frontend
+// Utilise le backend SMTP personnalisé pour envoyer des emails
 
-import emailjs from '@emailjs/browser';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 interface StudentEmail {
   email: string;
@@ -16,19 +16,12 @@ interface LiveCourseReminder {
   date: string;
   heure: string;
   studentEmail: string;
+  studentName?: string;
   minutesUntilStart: number;
 }
 
-// Configuration EmailJS
-// Pour utiliser ce service, vous devez :
-// 1. Créer un compte sur https://www.emailjs.com/
-// 2. Créer un service email (Gmail, Outlook, etc.)
-// 3. Créer un template d'email
-// 4. Remplacer les valeurs ci-dessous par vos clés EmailJS
-
-const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID"; // À remplacer
-const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID"; // À remplacer
-const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY"; // À remplacer
+// Configuration du backend SMTP
+// Le backend doit être démarré sur le port 3001 (ou configuré via VITE_API_URL)
 
 // Liste des emails des étudiants pour les notifications
 // En production, cela devrait venir d'une base de données
@@ -38,47 +31,50 @@ const STUDENT_EMAILS: StudentEmail[] = [
 ];
 
 /**
- * Envoie un email via EmailJS
+ * Envoie un email via le backend SMTP personnalisé
  */
-async function sendEmail(
-  toEmail: string,
-  subject: string,
-  message: string
+async function sendEmailViaBackend(
+  studentEmail: string,
+  studentName: string,
+  courseTitle: string,
+  formateur: string,
+  date: string,
+  heure: string,
+  minutesUntilStart: number
 ): Promise<boolean> {
   try {
-    // Si EmailJS n'est pas configuré, on simule l'envoi pour le développement
-    if (
-      EMAILJS_SERVICE_ID === "YOUR_SERVICE_ID" ||
-      EMAILJS_TEMPLATE_ID === "YOUR_TEMPLATE_ID"
-    ) {
-      console.log("📧 [SIMULATION] Email envoyé:", {
-        to: toEmail,
-        subject,
-        message,
-      });
-      // En production, décommentez le code ci-dessous pour utiliser EmailJS
-      return true;
+    const response = await fetch(`${API_BASE_URL}/api/notifications/live-course`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        studentEmail,
+        studentName,
+        courseTitle,
+        formateur,
+        date,
+        heure,
+        minutesUntilStart,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Erreur lors de l\'envoi de l\'email');
     }
 
-    // Code pour utiliser EmailJS (nécessite l'installation de @emailjs/browser)
-    // import emailjs from '@emailjs/browser';
-    //
-    // const templateParams = {
-    //   to_email: toEmail,
-    //   subject: subject,
-    //   message: message,
-    // };
-    //
-    // await emailjs.send(
-    //   EMAILJS_SERVICE_ID,
-    //   EMAILJS_TEMPLATE_ID,
-    //   templateParams,
-    //   EMAILJS_PUBLIC_KEY
-    // );
-
-    return true;
+    const result = await response.json();
+    console.log("✅ Email envoyé avec succès à:", studentEmail);
+    return result.success;
   } catch (error) {
-    console.error("Erreur lors de l'envoi de l'email:", error);
+    console.error("❌ Erreur lors de l'envoi de l'email:", error);
+    // En cas d'erreur (backend non disponible), on simule pour le développement
+    console.log("📧 [SIMULATION] Email envoyé:", {
+      to: studentEmail,
+      course: courseTitle,
+      minutesUntilStart,
+    });
     return false;
   }
 }
@@ -89,30 +85,15 @@ async function sendEmail(
 export async function sendLiveCourseReminder(
   reminder: LiveCourseReminder
 ): Promise<boolean> {
-  const subject = `🔴 Rappel : Cours en live "${reminder.courseTitle}" dans ${reminder.minutesUntilStart} minutes`;
-  const message = `
-Bonjour,
-
-Rappel important : Un cours en live va bientôt commencer !
-
-📚 Cours : ${reminder.courseTitle}
-👨‍🏫 Formateur : ${reminder.formateur}
-📅 Date : ${new Date(reminder.date).toLocaleDateString("fr-FR", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })}
-⏰ Heure de début : ${reminder.heure}
-⏱️ Dans : ${reminder.minutesUntilStart} minute${reminder.minutesUntilStart > 1 ? "s" : ""}
-
-Assurez-vous d'être prêt à rejoindre le cours en live !
-
-Cordialement,
-L'équipe Kaay Diangu
-  `.trim();
-
-  return await sendEmail(reminder.studentEmail, subject, message);
+  return await sendEmailViaBackend(
+    reminder.studentEmail,
+    reminder.studentName || 'Cher apprenant',
+    reminder.courseTitle,
+    reminder.formateur,
+    reminder.date,
+    reminder.heure,
+    reminder.minutesUntilStart
+  );
 }
 
 /**
@@ -170,6 +151,7 @@ export async function checkLiveCourseReminders(
             date: course.date,
             heure: course.heure,
             studentEmail: student.email,
+            studentName: student.name,
             minutesUntilStart: diffMinutes,
           });
 
