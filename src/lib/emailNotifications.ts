@@ -121,63 +121,6 @@ export function getStudentEmails(): StudentEmail[] {
 }
 
 /**
- * Vérifie les cours avec délai approchant et envoie des notifications
- */
-export async function checkCourseDeadlines(
-  courses: Array<{
-    id: string;
-    titre: string;
-    dateFin?: string;
-    disponibilite: string;
-  }>
-): Promise<number> {
-  const now = new Date();
-  const sentNotifications: Set<string> = new Set();
-  let count = 0;
-
-  for (const course of courses) {
-    // Vérifier seulement les cours en cours
-    if (course.disponibilite !== "en_cours" || !course.dateFin) {
-      continue;
-    }
-
-    const deadline = new Date(course.dateFin);
-    const daysRemaining = Math.ceil(
-      (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    // Envoyer une notification si le délai approche (7 jours ou moins)
-    if (daysRemaining <= 7 && daysRemaining > 0) {
-      const notificationKey = `deadline-${course.id}`;
-      
-      // Vérifier si on a déjà envoyé une notification aujourd'hui
-      const lastNotification = localStorage.getItem(notificationKey);
-      const today = now.toISOString().split("T")[0];
-      
-      if (lastNotification !== today) {
-        for (const student of STUDENT_EMAILS) {
-          const sent = await sendCourseDeadlineNotification({
-            courseId: course.id,
-            courseTitle: course.titre,
-            studentEmail: student.email,
-            deadline: course.dateFin,
-            daysRemaining,
-          });
-
-          if (sent) {
-            localStorage.setItem(notificationKey, today);
-            sentNotifications.add(notificationKey);
-            count++;
-          }
-        }
-      }
-    }
-  }
-
-  return count;
-}
-
-/**
  * Vérifie les cours en live qui commencent bientôt et envoie des notifications
  */
 export async function checkLiveCourseReminders(
@@ -241,15 +184,9 @@ export async function checkLiveCourseReminders(
 
 /**
  * Initialise le système de notifications
- * Vérifie périodiquement les cours et envoie des notifications
+ * Vérifie périodiquement les cours en live et envoie des notifications
  */
 export function initializeEmailNotifications(
-  getCourses: () => Array<{
-    id: string;
-    titre: string;
-    dateFin?: string;
-    disponibilite: string;
-  }>,
   getLiveCourses: () => Array<{
     id: string;
     titre: string;
@@ -260,12 +197,10 @@ export function initializeEmailNotifications(
   }>
 ) {
   // Vérifier immédiatement
-  checkCourseDeadlines(getCourses());
   checkLiveCourseReminders(getLiveCourses());
 
   // Vérifier toutes les minutes
   const interval = setInterval(() => {
-    checkCourseDeadlines(getCourses());
     checkLiveCourseReminders(getLiveCourses());
   }, 60 * 1000); // 1 minute
 
