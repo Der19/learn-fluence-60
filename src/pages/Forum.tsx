@@ -302,7 +302,7 @@ export default function Forum() {
       author: user.email,
       authorRole: user.role,
       createdAt: new Date().toISOString(),
-      category: newTopic.category || undefined,
+      category: newTopic.category && newTopic.category !== "none" ? newTopic.category : undefined,
       replies: [],
     };
 
@@ -569,14 +569,14 @@ export default function Forum() {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Catégorie (optionnel)</label>
                     <Select
-                      value={newTopic.category}
-                      onValueChange={(value) => setNewTopic({ ...newTopic, category: value })}
+                      value={newTopic.category || undefined}
+                      onValueChange={(value) => setNewTopic({ ...newTopic, category: value || "" })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner une catégorie" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Aucune catégorie</SelectItem>
+                        <SelectItem value="none">Aucune catégorie</SelectItem>
                         {topicCategories.map((cat) => (
                           <SelectItem key={cat} value={cat}>
                             {cat}
