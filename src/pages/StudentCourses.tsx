@@ -176,10 +176,15 @@ export default function StudentCourses() {
   const confirmLaunch = () => {
     if (!selectedCourse) return;
 
-    // Mettre à jour le statut du cours
+    // Mettre à jour le statut du cours avec une date de fin (7 jours à partir de maintenant)
+    const dateDebut = new Date().toISOString().split('T')[0];
+    const dateFin = new Date();
+    dateFin.setDate(dateFin.getDate() + 7);
+    const dateFinStr = dateFin.toISOString().split('T')[0];
+
     setStudentCourses(prev => prev.map(c => 
       c.id === selectedCourse.id 
-        ? { ...c, disponibilite: "en_cours" as CourseAvailability, progression: 0, dateDebut: new Date().toISOString().split('T')[0] }
+        ? { ...c, disponibilite: "en_cours" as CourseAvailability, progression: 0, dateDebut, dateFin: dateFinStr }
         : c
     ));
 
