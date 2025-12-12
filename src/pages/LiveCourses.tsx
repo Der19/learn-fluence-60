@@ -21,8 +21,39 @@ type LiveCourse = {
 export default function LiveCourses() {
   const [filter, setFilter] = useState<"all" | "a_venir" | "en_cours" | "termine">("all");
 
-  // Données simulées des cours en live
-  const [liveCourses, setLiveCourses] = useState<LiveCourse[]>([
+  // Fonction pour créer un cours de test qui commence dans 10 minutes
+  const createTestLiveCourse = (): LiveCourse => {
+    const now = new Date();
+    const testDate = new Date(now.getTime() + 10 * 60 * 1000); // 10 minutes à partir de maintenant
+    const dateStr = testDate.toISOString().split('T')[0];
+    const heureStr = `${String(testDate.getHours()).padStart(2, '0')}:${String(testDate.getMinutes()).padStart(2, '0')}`;
+    
+    return {
+      id: "LIVE-TEST-10MIN",
+      titre: "Cours de Test - Notification Email",
+      formateur: "Martin Dubois",
+      date: dateStr,
+      heure: heureStr,
+      duree: "2h",
+      lienLive: "https://meet.example.com/test-notification",
+      statut: "a_venir",
+      description: "Ce cours est un test pour vérifier les notifications par email. Il commence dans 10 minutes.",
+    };
+  };
+
+  // Charger les cours depuis localStorage ou utiliser les données par défaut
+  const loadLiveCourses = (): LiveCourse[] => {
+    try {
+      const stored = localStorage.getItem("live:courses");
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des cours en live:", error);
+    }
+    // Données par défaut avec un cours de test
+    return [
+      createTestLiveCourse(),
     {
       id: "LIVE-001",
       titre: "JavaScript Fondamentaux - Session Live",
@@ -77,7 +108,15 @@ export default function LiveCourses() {
       statut: "a_venir",
       description: "Structures de données et algorithmes fondamentaux",
     },
-  ]);
+  ];
+  };
+
+  const [liveCourses, setLiveCourses] = useState<LiveCourse[]>(loadLiveCourses);
+
+  // Sauvegarder les cours dans localStorage à chaque modification
+  useEffect(() => {
+    localStorage.setItem("live:courses", JSON.stringify(liveCourses));
+  }, [liveCourses]);
 
   const filtered = useMemo(() => {
     if (filter === "all") return liveCourses;

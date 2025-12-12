@@ -28,6 +28,7 @@ import LiveCourses from "./pages/LiveCourses";
 import Support from "./pages/Support";
 import Forum from "./pages/Forum";
 import StudentQuizResult from "./pages/StudentQuizResult";
+import { EmailNotificationsProvider } from "@/components/EmailNotificationsProvider";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <EmailNotificationsProvider />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
