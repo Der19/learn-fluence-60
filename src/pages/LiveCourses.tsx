@@ -54,7 +54,7 @@ export default function LiveCourses() {
     // Données par défaut avec un cours de test
     return [
       createTestLiveCourse(),
-    {
+      {
       id: "LIVE-001",
       titre: "JavaScript Fondamentaux - Session Live",
       formateur: "Martin Dubois",
