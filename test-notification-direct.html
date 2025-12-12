@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Notifications Email</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #5568d3;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 5px;
+      background: #f0f0f0;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Test Notifications Email - Kaay Diangu</h1>
+  
+  <div>
+    <h3>Actions de test :</h3>
+    <button onclick="testSendEmail()">Envoyer un email de test</button>
+    <button onclick="testSendBulk()">Envoyer à tous les étudiants</button>
+    <button onclick="clearStorage()">Vider le localStorage</button>
+    <button onclick="checkBackend()">Vérifier le backend</button>
+  </div>
+  
+  <div id="result"></div>
+
+  <script>
+    const API_URL = 'http://localhost:3001';
+    const students = [
+      { email: "idoucour9@gmail.com", name: "Étudiant Test" },
+      { email: "student@edu.local", name: "Apprenant" },
+    ];
+
+    function showResult(message, isSuccess = true) {
+      const result = document.getElementById('result');
+      result.className = isSuccess ? 'success' : 'error';
+      result.textContent = message;
+      console.log(message);
+    }
+
+    async function checkBackend() {
+      try {
+        const response = await fetch(`${API_URL}/health`);
+        const data = await response.json();
+        showResult(`✅ Backend actif: ${data.message}`, true);
+      } catch (error) {
+        showResult(`❌ Backend non accessible: ${error.message}`, false);
+      }
+    }
+
+    async function testSendEmail() {
+      showResult('⏳ Envoi en cours...', true);
+      try {
+        const now = new Date();
+        const response = await fetch(`${API_URL}/api/notifications/live-course`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            studentEmail: "idoucour9@gmail.com",
+            studentName: "Test",
+            courseTitle: "Test JavaScript",
+            formateur: "Martin Dubois",
+            date: now.toISOString().split('T')[0],
+            heure: now.toTimeString().slice(0, 5),
+            minutesUntilStart: 10,
+          }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          showResult(`✅ Email envoyé avec succès! Message ID: ${result.messageId}`, true);
+        } else {
+          showResult(`❌ Erreur: ${result.error}`, false);
+        }
+      } catch (error) {
+        showResult(`❌ Erreur: ${error.message}`, false);
+      }
+    }
+
+    async function testSendBulk() {
+      showResult('⏳ Envoi en masse en cours...', true);
+      try {
+        const now = new Date();
+        const response = await fetch(`${API_URL}/api/notifications/live-course/bulk`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            students: students,
+            courseData: {
+              courseTitle: "Test - JavaScript Fondamentaux",
+              formateur: "Martin Dubois",
+              date: now.toISOString().split('T')[0],
+              heure: now.toTimeString().slice(0, 5),
+              minutesUntilStart: 2,
+            },
+          }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          showResult(
+            `✅ ${result.successCount} emails envoyés sur ${result.total} étudiants!\n` +
+            `Détails: ${JSON.stringify(result.results, null, 2)}`,
+            true
+          );
+        } else {
+          showResult(`❌ Erreur: ${result.error}`, false);
+        }
+      } catch (error) {
+        showResult(`❌ Erreur: ${error.message}`, false);
+      }
+    }
+
+    function clearStorage() {
+      localStorage.removeItem('live-LIVE-TEST-10MIN');
+      localStorage.removeItem('live-LIVE-TEST-MANUAL');
+      showResult('✅ localStorage vidé pour les notifications', true);
+    }
+
+    // Vérifier le backend au chargement
+    checkBackend();
+  </script>
+</body>
+</html>
+
+

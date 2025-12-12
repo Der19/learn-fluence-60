@@ -134,7 +134,9 @@ export async function checkLiveCourseReminders(
     const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
     // Envoyer une notification si le cours commence dans 10 minutes (± 1 minute de tolérance)
-    // Pour le test : détecte aussi les cours qui commencent dans 1-3 minutes
+    // Pour le test : détecte aussi les cours qui commencent dans 1-3 minutes (2 minutes avant)
+    console.log(`🔍 Cours "${course.titre}": ${diffMinutes} minutes avant le début`);
+    
     if ((diffMinutes >= 9 && diffMinutes <= 11) || (diffMinutes >= 1 && diffMinutes <= 3)) {
       const notificationKey = `live-${course.id}`;
       
@@ -142,22 +144,82 @@ export async function checkLiveCourseReminders(
       const lastNotification = localStorage.getItem(notificationKey);
       const nowMinutes = Math.floor(now.getTime() / (1000 * 60));
       
+      console.log(`📧 Cours "${course.titre}" dans la fenêtre de notification (${diffMinutes} min)`);
+      console.log(`   Dernière notification: ${lastNotification}, Maintenant: ${nowMinutes}`);
+      
       if (lastNotification !== String(nowMinutes)) {
-        for (const student of STUDENT_EMAILS) {
-          const sent = await sendLiveCourseReminder({
-            courseId: course.id,
-            courseTitle: course.titre,
-            formateur: course.formateur,
-            date: course.date,
-            heure: course.heure,
-            studentEmail: student.email,
-            studentName: student.name,
-            minutesUntilStart: diffMinutes,
+        console.log(`✅ Envoi des notifications pour "${course.titre}"...`);
+        // Envoyer à tous les étudiants en masse via l'API backend
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/notifications/live-course/bulk`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              students: STUDENT_EMAILS,
+              courseData: {
+                courseTitle: course.titre,
+                formateur: course.formateur,
+                date: course.date,
+                heure: course.heure,
+                minutesUntilStart: diffMinutes,
+              },
+            }),
           });
 
-          if (sent) {
+          if (response.ok) {
+            const result = await response.json();
+            console.log(`✅ ${result.successCount} emails envoyés sur ${result.total} étudiants pour "${course.titre}"`);
+            console.log(`   Détails:`, result.results);
             localStorage.setItem(notificationKey, String(nowMinutes));
-            count++;
+            count = result.successCount;
+          } else {
+            // Si le backend n'est pas disponible, envoyer individuellement
+            const errorText = await response.text();
+            console.error(`❌ Erreur backend (${response.status}):`, errorText);
+            console.log("⚠️ Backend non disponible, envoi individuel...");
+            for (const student of STUDENT_EMAILS) {
+              const sent = await sendLiveCourseReminder({
+                courseId: course.id,
+                courseTitle: course.titre,
+                formateur: course.formateur,
+                date: course.date,
+                heure: course.heure,
+                studentEmail: student.email,
+                studentName: student.name,
+                minutesUntilStart: diffMinutes,
+              });
+
+              if (sent) {
+                count++;
+              }
+            }
+            if (count > 0) {
+              localStorage.setItem(notificationKey, String(nowMinutes));
+            }
+          }
+        } catch (error) {
+          console.error("Erreur lors de l'envoi en masse:", error);
+          // Fallback : envoi individuel
+          for (const student of STUDENT_EMAILS) {
+            const sent = await sendLiveCourseReminder({
+              courseId: course.id,
+              courseTitle: course.titre,
+              formateur: course.formateur,
+              date: course.date,
+              heure: course.heure,
+              studentEmail: student.email,
+              studentName: student.name,
+              minutesUntilStart: diffMinutes,
+            });
+
+            if (sent) {
+              count++;
+            }
+          }
+          if (count > 0) {
+            localStorage.setItem(notificationKey, String(nowMinutes));
           }
         }
       }
@@ -181,13 +243,20 @@ export function initializeEmailNotifications(
     statut: string;
   }>
 ) {
+  console.log("🔔 Système de notifications initialisé");
+  
+  const courses = getLiveCourses();
+  console.log(`📚 ${courses.length} cours en live chargés:`, courses.map(c => `${c.titre} (${c.date} ${c.heure})`));
+  
   // Vérifier immédiatement
-  checkLiveCourseReminders(getLiveCourses());
+  checkLiveCourseReminders(courses);
 
-  // Vérifier toutes les minutes
+  // Vérifier toutes les 15 secondes pour les tests (plus réactif)
   const interval = setInterval(() => {
-    checkLiveCourseReminders(getLiveCourses());
-  }, 60 * 1000); // 1 minute
+    console.log("🔍 Vérification des cours en live...");
+    const currentCourses = getLiveCourses();
+    checkLiveCourseReminders(currentCourses);
+  }, 15 * 1000); // 15 secondes pour les tests
 
   return () => clearInterval(interval);
 }

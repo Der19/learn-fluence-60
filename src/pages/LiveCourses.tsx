@@ -24,12 +24,12 @@ export default function LiveCourses() {
   // Fonction pour créer un cours de test qui commence dans 2 minutes
   const createTestLiveCourse = (): LiveCourse => {
     const now = new Date();
-    const testDate = new Date(now.getTime() + 2 * 60 * 1000); // 2 minutes pour test
+    const testDate = new Date(now.getTime() + 2 * 60 * 1000); // 2 minutes à partir de maintenant
     const dateStr = testDate.toISOString().split('T')[0];
     const heureStr = `${String(testDate.getHours()).padStart(2, '0')}:${String(testDate.getMinutes()).padStart(2, '0')}`;
     
     return {
-      id: "LIVE-TEST-10MIN",
+      id: "LIVE-TEST-2MIN",
       titre: "Cours de Test - Notification Email",
       formateur: "Martin Dubois",
       date: dateStr,
@@ -37,24 +37,88 @@ export default function LiveCourses() {
       duree: "2h",
       lienLive: "https://meet.example.com/test-notification",
       statut: "a_venir",
-      description: "Ce cours est un test pour vérifier les notifications par email. Il commence dans 2 minutes.",
+      description: "Ce cours est un test pour vérifier les notifications par email. Un email sera envoyé 2 minutes avant le début du cours.",
+    };
+  };
+
+  // Fonction pour créer un autre cours de test qui commence à 16h26 (dans 2 minutes)
+  const createSecondTestCourse = (): LiveCourse => {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    
+    // Créer un cours qui commence à 16h26 aujourd'hui
+    const testDate = new Date(`${today}T16:26:00`);
+    
+    // Si 16h26 est déjà passé aujourd'hui, le mettre à demain
+    if (testDate < now) {
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      testDate.setDate(tomorrow.getDate());
+      testDate.setMonth(tomorrow.getMonth());
+      testDate.setFullYear(tomorrow.getFullYear());
+    }
+    
+    const dateStr = testDate.toISOString().split('T')[0];
+    const heureStr = "16:26";
+    
+    return {
+      id: "LIVE-TEST-2MIN",
+      titre: "Cours de Test - JavaScript Avancé",
+      formateur: "Sarah Johnson",
+      date: dateStr,
+      heure: heureStr,
+      duree: "1h30",
+      lienLive: "https://meet.example.com/test-js",
+      statut: "a_venir",
+      description: "Deuxième cours de test pour vérifier les notifications. Il commence à 16h26.",
     };
   };
 
   // Charger les cours depuis localStorage ou utiliser les données par défaut
   const loadLiveCourses = (): LiveCourse[] => {
+    let storedCourses: LiveCourse[] = [];
     try {
       const stored = localStorage.getItem("live:courses");
       if (stored) {
-        return JSON.parse(stored);
+        storedCourses = JSON.parse(stored);
       }
     } catch (error) {
       console.error("Erreur lors du chargement des cours en live:", error);
     }
-    // Données par défaut avec un cours de test
-    return [
-      createTestLiveCourse(),
-      {
+    
+    // Toujours inclure le cours de test (dans 2 minutes)
+    const testCourse = createTestLiveCourse();
+    
+    // Vérifier si le cours de test existe déjà dans les cours stockés
+    const testCourseExists = storedCourses.some(c => c.id === testCourse.id);
+    
+    // Si le cours de test n'existe pas, l'ajouter
+    if (!testCourseExists) {
+      storedCourses = [testCourse, ...storedCourses];
+      // Sauvegarder avec le nouveau cours
+      try {
+        localStorage.setItem("live:courses", JSON.stringify(storedCourses));
+      } catch (error) {
+        console.error("Erreur lors de la sauvegarde:", error);
+      }
+    } else {
+      // Mettre à jour le cours de test existant avec la nouvelle heure
+      storedCourses = storedCourses.map(c => 
+        c.id === testCourse.id ? testCourse : c
+      );
+      try {
+        localStorage.setItem("live:courses", JSON.stringify(storedCourses));
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour:", error);
+      }
+    }
+    
+    // Si aucun cours n'est stocké, utiliser les données par défaut
+    if (storedCourses.length === 0) {
+      return [
+        testCourse,
+        createSecondTestCourse(),
+        {
       id: "LIVE-001",
       titre: "JavaScript Fondamentaux - Session Live",
       formateur: "Martin Dubois",
@@ -109,6 +173,10 @@ export default function LiveCourses() {
       description: "Structures de données et algorithmes fondamentaux",
     },
   ];
+    }
+    
+    // Retourner les cours avec le cours de test toujours inclus
+    return storedCourses;
   };
 
   const [liveCourses, setLiveCourses] = useState<LiveCourse[]>(loadLiveCourses);
