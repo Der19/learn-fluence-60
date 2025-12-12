@@ -84,6 +84,7 @@ export function Navbar() {
                 <Button variant="ghost" size="sm" onClick={() => navigate("/student/courses")}>Mes Cours</Button>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/live-courses")}>Cours en Live</Button>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/student/quizzes")}>Quiz</Button>
+                <Button variant="ghost" size="sm" onClick={() => navigate("/support")}>FAQ</Button>
               </>
             )}
             {user?.role === "client" && (
@@ -91,11 +92,15 @@ export function Navbar() {
                 <Button variant="ghost" size="sm" onClick={() => navigate("/client")}>Tableau de bord</Button>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/client/credits")}>Gestion des crédits</Button>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/client/learners")}>Gestion des apprenants</Button>
+                <Button variant="ghost" size="sm" onClick={() => navigate("/support")}>FAQ</Button>
               </>
             )}
-            {!user || (user.role !== "formateur" && user.role !== "student" && user.role !== "client") ? (
-              <Button variant="ghost" size="sm" onClick={() => navigate("/support")}>Support</Button>
-            ) : null}
+            {user?.role === "formateur" && (
+              <Button variant="ghost" size="sm" onClick={() => navigate("/support")}>FAQ</Button>
+            )}
+            {!user && (
+              <Button variant="ghost" size="sm" onClick={() => navigate("/support")}>FAQ</Button>
+            )}
           </div>
 
           {/* Right section */}
